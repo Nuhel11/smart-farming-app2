@@ -23,6 +23,7 @@ coverage/
 # Local env files
 *.local
 **/.env
+.env
 
 # Editor directories and files
 .vscode/*
