@@ -7,7 +7,7 @@ import recommendationRoutes from './routes/recommendationRoutes.js';
 const app = express();
 const port = 5000; // Use port 5000 for the backend API
 
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['http://localhost:5173']; //ZAHIR
 
 const corsOptions = {
   orgin:(orgin, callback) => {

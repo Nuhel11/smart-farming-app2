@@ -1,12 +1,14 @@
 import express from 'express';
 import pool from '../db.js';
 import protect from '../middleware/auth.js';
-import { getCurrentWeather } from '../services/weatherService.js'; // Import the new service
+import { getCurrentWeather } from '../services/weatherService.js';
+// Removed unused import: import { calculateNutrientDeficiency } from '../utils/nutrientLogic.js';
 
 const router = express.Router();
 
-// Route: GET /api/recommendation/crop/:fieldId
-// Purpose: Provide a crop recommendation based on current conditions (PROTECTED)
+// ----------------------------------------------------------------
+// Route 1: GET /api/recommendation/crop/:fieldId (Existing)
+// ----------------------------------------------------------------
 router.get('/crop/:fieldId', protect, async (req, res) => {
     const { fieldId } = req.params;
     const userId = req.user.userId;
@@ -35,7 +37,6 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         );
 
         // 3. Prepare ML Input Data
-        // IMPORTANT: The ML model requires an NPK-pH-Temp-Humidity-Rainfall input array.
         const mlInput = {
             N: soilAndLocationData.nitrogen_ppm,
             P: soilAndLocationData.phosphorus_ppm,
@@ -46,21 +47,13 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
             Rainfall: weatherData.rainfall_mm,
         };
         
-        // ----------------------------------------------------------------
-        // NOTE: This is the placeholder for the actual ML Model call
-        // ----------------------------------------------------------------
-        
-        // *** In a production system, this would be an HTTP call to your Python ML service:
-        // const mlResponse = await axios.post('http://ml-model-service/predict', { input: mlInput });
-        // const recommendedCrop = mlResponse.data.prediction;
-
         // --- MOCK ML RECOMMENDATION for testing ---
         const cropList = ['Wheat', 'Maize', 'Rice', 'Sugarcane', 'Lentil'];
         const recommendedCrop = cropList[Math.floor(Math.random() * cropList.length)]; // Random crop selection
-        const confidenceScore = (0.75 + Math.random() * 0.25);
+        const confidenceScore = (0.75 + Math.random() * 0.25); 
         // ----------------------------------------------------------------
 
-        // 4. Record Recommendation in DB (Optional but good practice)
+        // 4. Record Recommendation in DB
         const recQuery = `
             INSERT INTO Recommendations (field_id, rec_type, recommended_item, details)
             VALUES (?, ?, ?, ?)
@@ -69,7 +62,12 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
             fieldId, 
             'crop', 
             recommendedCrop, 
-            JSON.stringify({ ml_input: mlInput, weather: weatherData, confidence: confidenceScore })
+            JSON.stringify({ 
+                type: 'crop', 
+                ml_input: mlInput, 
+                weather: weatherData, 
+                confidence: confidenceScore 
+            })
         ]);
 
 
@@ -79,7 +77,7 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
             recommended_crop: recommendedCrop,
             confidence: confidenceScore,
             input_data: mlInput,
-            source: 'ML Model & Live Weather'
+            source: 'Mock ML Model & Live Weather'
         });
 
     } catch (error) {
@@ -87,6 +85,11 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+// ----------------------------------------------------------------
+// Route 2: POST /api/recommendation/nutrition (Existing)
+// ----------------------------------------------------------------
 router.post('/nutrition', protect, async (req, res) => {
     const userId = req.user.userId;
 
@@ -170,6 +173,7 @@ router.post('/nutrition', protect, async (req, res) => {
             'nutrition', 
             cropName, 
             JSON.stringify({ 
+                type: 'nutrition',
                 deficiency: deficiency, 
                 required: requiredFertilizers,
                 current_soil: currentSoil,
@@ -188,6 +192,88 @@ router.post('/nutrition', protect, async (req, res) => {
     } catch (error) {
         console.error('Nutrition Recommendation Error:', error.message);
         res.status(500).json({ message: error.message });
+    }
+});
+
+
+// ----------------------------------------------------------------
+// Route 3: DELETE /api/recommendation/all (Existing)
+// ----------------------------------------------------------------
+router.delete('/all', protect, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        // Find all fields belonging to the user
+        const [fieldRows] = await pool.execute(
+            `SELECT field_id FROM Fields WHERE user_id = ?`,
+            [userId]
+        );
+
+        if (fieldRows.length === 0) {
+            return res.status(200).json({ message: "No fields found, no history to delete." });
+        }
+
+        const fieldIds = fieldRows.map(row => row.field_id);
+        
+        // Delete all recommendations linked to the user's fields
+        const deleteQuery = `
+            DELETE FROM Recommendations WHERE field_id IN (?)
+        `;
+
+        await pool.execute(deleteQuery, [fieldIds]);
+
+        res.status(200).json({
+            message: `Successfully deleted all recommendation history for ${fieldIds.length} fields.`
+        });
+
+    } catch (error) {
+        console.error('Delete Recommendation History Error:', error.message);
+        res.status(500).json({ message: 'Server error during history deletion.' });
+    }
+});
+
+// ----------------------------------------------------------------
+// NEW ROUTE 4: DELETE /api/recommendation/field/:fieldId
+// Purpose: Delete the MOST RECENT recommendation (crop OR nutrition) for a specific field (PROTECTED)
+// ----------------------------------------------------------------
+router.delete('/field/:fieldId', protect, async (req, res) => {
+    const { fieldId } = req.params;
+    const userId = req.user.userId;
+
+    try {
+        // Verify the field belongs to the user and find the ID of the most recent recommendation
+        const [recRows] = await pool.execute(
+            `SELECT rec_id FROM Recommendations r
+             JOIN Fields f ON r.field_id = f.field_id
+             WHERE f.user_id = ? AND f.field_id = ?
+             ORDER BY r.rec_date DESC LIMIT 1`,
+            [userId, fieldId]
+        );
+
+        if (recRows.length === 0) {
+            return res.status(200).json({ message: "No recent recommendation found for this field." });
+        }
+
+        const recIdToDelete = recRows[0].rec_id;
+
+        // Delete the single most recent recommendation
+        const [result] = await pool.execute(
+            `DELETE FROM Recommendations WHERE rec_id = ?`,
+            [recIdToDelete]
+        );
+
+        if (result.affectedRows === 0) {
+             return res.status(404).json({ message: "Recommendation not found or already deleted." });
+        }
+
+        res.status(200).json({
+            message: `Successfully deleted the most recent recommendation for field ${fieldId}.`,
+            recId: recIdToDelete
+        });
+
+    } catch (error) {
+        console.error('Delete Latest Recommendation Error:', error.message);
+        res.status(500).json({ message: 'Server error during specific history deletion.' });
     }
 });
 

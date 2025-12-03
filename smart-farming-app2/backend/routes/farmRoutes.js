@@ -6,7 +6,6 @@ const router = express.Router();
 
 // ----------------------------------------------------------------
 // Helper function to sanitize inputs (convert empty strings to null for DB)
-// This is critical to prevent "Out of range" errors when inserting empty strings into DECIMAL columns.
 // ----------------------------------------------------------------
 const sanitizeInput = (value) => {
     // Check for null, undefined, or empty string.
@@ -20,8 +19,7 @@ const sanitizeInput = (value) => {
 
 
 // ----------------------------------------------------------------
-// Route 1: POST /api/farm/field
-// Purpose: Register a new field and its initial soil data (PROTECTED)
+// Route 1: POST /api/farm/field (Existing)
 // ----------------------------------------------------------------
 router.post('/field', protect, async (req, res) => {
     const userId = req.user.userId;
@@ -85,15 +83,13 @@ router.post('/field', protect, async (req, res) => {
 
 
 // ----------------------------------------------------------------
-// Route 2: GET /api/farm/fields
-// Purpose: Fetch all fields and their latest soil data for the current user (PROTECTED)
+// Route 2: GET /api/farm/fields (Existing)
 // ----------------------------------------------------------------
 router.get('/fields', protect, async (req, res) => {
     const userId = req.user.userId;
 
     try {
         // Query to get all fields for the user, and the latest soil test results for each.
-        // We join Fields (f) with Soil_Data (s) and use a subquery to filter only the LATEST soil entry (most recent test_date)
         const query = `
             SELECT 
                 f.field_id, 
@@ -121,6 +117,41 @@ router.get('/fields', protect, async (req, res) => {
     } catch (error) {
         console.error('Fetch Fields Error:', error);
         res.status(500).json({ message: 'Server error while fetching field data.' });
+    }
+});
+
+
+// ----------------------------------------------------------------
+// NEW ROUTE 3: DELETE /api/farm/:fieldId
+// Purpose: Delete an entire field and all associated soil/recommendation data (PROTECTED)
+// ----------------------------------------------------------------
+router.delete('/:fieldId', protect, async (req, res) => {
+    const { fieldId } = req.params;
+    const userId = req.user.userId;
+
+    try {
+        // IMPORTANT: Ensure the field belongs to the authenticated user before deleting.
+        const [result] = await pool.execute(
+            `DELETE FROM Fields WHERE field_id = ? AND user_id = ?`,
+            [fieldId, userId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Field not found or you do not have permission to delete it." });
+        }
+
+        // If ON DELETE CASCADE is set up correctly in MySQL, Soil_Data and Recommendations 
+        // linked to this fieldId will be automatically deleted.
+
+        res.status(200).json({
+            message: `Field ID ${fieldId} and all associated data deleted successfully.`,
+            fieldId: fieldId
+        });
+
+    } catch (error) {
+        console.error('Delete Field Error:', error);
+        // This catch will run if cascade fails or a foreign key constraint is violated unexpectedly
+        res.status(500).json({ message: 'Server error during field deletion.' });
     }
 });
 

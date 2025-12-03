@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; // <-- Imported useRef
+import React, { useState, useEffect, useRef } from 'react'; 
 import RegistrationForm from './components/RegistrationForm';
 import LoginForm from './components/LoginForm';
 import FieldDataForm from './components/FieldDataForm'; 
@@ -7,8 +7,13 @@ import HomeContent from './components/HomeContent';
 import Chatbot from './components/Chatbot';
 import FieldMap from './components/FieldMap'; 
 
+// --- Delete Confirmation Modal Component (REMOVED) ---
+// This component is no longer needed as the global deletion button is removed.
+
+
 // --- Field Item Component (Handles all field-specific actions) ---
-const FieldItem = ({ field, authToken }) => {
+// FieldItem remains the same as it handles the per-field deletion
+const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => { 
     // Crop Recommendation States
     const [cropRecommendation, setCropRecommendation] = useState(null);
     const [isCropRecLoading, setIsCropRecLoading] = useState(false);
@@ -89,6 +94,70 @@ const FieldItem = ({ field, authToken }) => {
             setIsNutrRecLoading(false);
         }
     };
+    
+    // --- 3a. Handle Deleting Latest Recommendation for this Field ---
+    const handleDeleteFieldRec = async (type) => {
+        // NOTE: alert() is used here based on prior conversation but should ideally be a custom modal
+        if (!window.confirm(`Are you sure you want to clear the displayed ${type} recommendation? This will delete the last record in the database for this field.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/recommendation/field/${field.field_id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // SUCCESS: Clear local state and notify parent to potentially refetch data
+                alert(data.message);
+                if (type === 'crop') setCropRecommendation(null);
+                if (type === 'nutrition') setNutritionRecommendation(null);
+                
+                if (onRecDelete) {
+                    onRecDelete();
+                }
+
+            } else {
+                alert(data.message || 'Failed to delete recommendation history.');
+            }
+        } catch (error) {
+            console.error('Delete Rec Error:', error);
+            alert('Network error during deletion.');
+        }
+    };
+
+    // --- 3b. Handle Deleting the ENTIRE Field ---
+    const handleDeleteField = async () => {
+         if (!window.confirm(`WARNING: This will permanently delete the entire field '${field.field_name}', all its soil tests, and all recommendation history. Are you sure?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/farm/${field.field_id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Successfully deleted field: ${field.field_name}`);
+                // Tell the Dashboard to reload the field list (which will remove this card)
+                if (onDeleteField) {
+                    onDeleteField();
+                }
+
+            } else {
+                alert(data.message || 'Failed to delete the field.');
+            }
+        } catch (error) {
+            console.error('Delete Field Error:', error);
+            alert('Network error during field deletion.');
+        }
+    };
 
 
     return (
@@ -98,9 +167,32 @@ const FieldItem = ({ field, authToken }) => {
             borderRadius: '5px', 
             backgroundColor: 'white',
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-            textAlign: 'left'
+            textAlign: 'left',
+            position: 'relative' // Needed for absolute positioning of the delete button
         }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a' }}>{field.field_name}</h4>
+            
+            {/* DELETE BUTTON for the ENTIRE FIELD CARD (Cross in the corner) */}
+            <button 
+                onClick={handleDeleteField}
+                style={{ 
+                    position: 'absolute', 
+                    top: '5px', 
+                    right: '5px', 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#c0392b', 
+                    fontSize: '1.5em', 
+                    cursor: 'pointer',
+                    padding: '5px', 
+                    lineHeight: '1' 
+                }}
+                title={`Delete field: ${field.field_name}`}
+            >
+                &times;
+            </button>
+
+
+            <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a', paddingRight: '20px' }}>{field.field_name}</h4>
             <p style={{ margin: '5px 0', fontSize: '0.85em', color: '#555' }}>
                 <span style={{ fontWeight: 'bold' }}>Soil:</span> N:{field.nitrogen_ppm} / P:{field.phosphorus_ppm || '--'} / K:{field.potassium_ppm || '--'} (pH: {field.ph_level})
             </p>
@@ -148,9 +240,19 @@ const FieldItem = ({ field, authToken }) => {
             {/* --- Recommendation Display --- */}
             {cropRecommendation && (
                 <div style={{ borderTop: '1px dashed #ccc', paddingTop: '10px' }}>
-                    <p style={{ fontWeight: 'bold', color: '#27ae60', margin: '0 0 5px 0' }}>
-                        Crop Rec: {cropRecommendation.recommended_crop}
-                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <p style={{ fontWeight: 'bold', color: '#27ae60', margin: '0 0 5px 0' }}>
+                            Crop Rec: {cropRecommendation.recommended_crop}
+                        </p>
+                        {/* DELETE BUTTON for Crop Rec History */}
+                        <button 
+                            onClick={() => handleDeleteFieldRec('crop')}
+                            style={{ background: 'none', border: 'none', color: '#c0392b', fontSize: '1.2em', cursor: 'pointer', padding: '0 5px', lineHeight: '1' }}
+                            title="Clear this crop recommendation"
+                        >
+                            &times;
+                        </button>
+                    </div>
                     <p style={{ fontSize: '0.8em', margin: 0, color: '#555' }}>
                         Input Temp: {cropRecommendation.input_data.Temp}°C | Confidence: {(cropRecommendation.confidence * 100).toFixed(0)}%
                     </p>
@@ -159,9 +261,19 @@ const FieldItem = ({ field, authToken }) => {
 
             {nutritionRecommendation && (
                 <div style={{ borderTop: '1px dashed #ccc', paddingTop: '10px', marginTop: '10px' }}>
-                    <p style={{ fontWeight: 'bold', color: '#f39c12', margin: '0 0 5px 0' }}>
-                        Nutrient Rec:
-                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <p style={{ fontWeight: 'bold', color: '#f39c12', margin: '0 0 5px 0' }}>
+                            Nutrient Rec:
+                        </p>
+                         {/* DELETE BUTTON for Nutrition Rec History */}
+                        <button 
+                            onClick={() => handleDeleteFieldRec('nutrition')}
+                            style={{ background: 'none', border: 'none', color: '#c0392b', fontSize: '1.2em', cursor: 'pointer', padding: '0 5px', lineHeight: '1' }}
+                            title="Clear this nutrient recommendation"
+                        >
+                            &times;
+                        </button>
+                    </div>
                     <p style={{ fontSize: '0.8em', margin: 0, whiteSpace: 'pre-wrap', color: '#555' }}>
                          {nutritionRecommendation.message}
                     </p>
@@ -178,6 +290,8 @@ const Dashboard = ({ user, onLogout }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [refreshTrigger, setRefreshTrigger] = useState(0); 
     const [showChatbot, setShowChatbot] = useState(false); 
+    // Removed unused states: showDeleteConfirm, deleteStatus, handleDeleteHistory
+
 
     // Fetches the user's field list from the protected API endpoint
     const fetchFields = async () => {
@@ -207,20 +321,25 @@ const Dashboard = ({ user, onLogout }) => {
         }
     };
 
+    // Handler to trigger field list reload whenever a change occurs
+    const triggerRefresh = () => {
+        setRefreshTrigger(prev => prev + 1);
+    }
+
     useEffect(() => {
         fetchFields();
     }, [user, refreshTrigger]);
 
     // Handler to refresh the field list after a successful new data submission
     const handleDataSubmit = () => {
-        setRefreshTrigger(prev => prev + 1); 
+        triggerRefresh(); 
     };
+    
 
     return (
         <div style={{ margin: '0 auto', padding: '40px 20px', maxWidth: '1000px', minHeight: '500px', textAlign: 'center' }}>
-            <h2>Dashboard: Welcome, {user.username}! 🌿</h2>
-            <p>Ready to manage your fields and get crop and nutrient recommendations.</p>
-
+            {/* Status Message (Removed global delete status) */}
+            
             {/* --- Chatbot Toggle --- */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '10px 0', borderBottom: '1px solid #ddd' }}>
                  <p style={{margin: 0, fontSize: '1.1em', fontWeight: 'bold'}}>Field Management</p>
@@ -259,18 +378,29 @@ const Dashboard = ({ user, onLogout }) => {
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', padding: '10px' }}>
                         {fields.map(field => (
-                            <FieldItem key={field.field_id} field={field} authToken={localStorage.getItem('authToken')} />
+                            <FieldItem 
+                                key={field.field_id} 
+                                field={field} 
+                                authToken={localStorage.getItem('authToken')} 
+                                onRecDelete={triggerRefresh} // For clearing single rec history
+                                onDeleteField={triggerRefresh} // For deleting the entire card/field
+                            />
                         ))}
                     </div>
                 )}
             </div>
             
-            <button 
-                onClick={onLogout}
-                style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '30px' }}
-            >
-                Logout
-            </button>
+            {/* --- Logout Button (Only Logout remains) --- */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '30px' }}>
+                {/* Global Delete Button and Modal REMOVED */}
+
+                <button 
+                    onClick={onLogout}
+                    style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                    Logout
+                </button>
+            </div>
         </div>
     );
 };
