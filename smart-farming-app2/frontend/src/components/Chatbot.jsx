@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 
 // IMPORTANT: Replace the empty string below with your actual Gemini API Key 
 // if you are running this locally without an automated environment injection system.
+<<<<<<< HEAD
 const API_KEY =  "AIzaSyCbY-eIjTL8BP1Fe7lM0VJCmltprUYxfy0"
+=======
+const API_KEY = "AIzaSyCchKek20FBFu_eyw1bD56lafWNfMN0K5g"; 
+>>>>>>> Manishv2
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
 
 // Define the system instruction to set the persona

@@ -1,6 +1,7 @@
 import express from 'express';
 import pool from '../db.js';
 import protect from '../middleware/auth.js';
+<<<<<<< HEAD
 import { getCurrentWeather } from '../services/weatherService.js';
 import axios from 'axios'; // NEW IMPORT for making HTTP calls to the ML server
 
@@ -25,6 +26,14 @@ const toFloat = (value) => {
 // Route 1: GET /api/recommendation/crop/:fieldId
 // Purpose: Provide a crop recommendation based on current conditions (PROTECTED)
 // ----------------------------------------------------------------
+=======
+import { getCurrentWeather } from '../services/weatherService.js'; // Import the new service
+
+const router = express.Router();
+
+// Route: GET /api/recommendation/crop/:fieldId
+// Purpose: Provide a crop recommendation based on current conditions (PROTECTED)
+>>>>>>> Manishv2
 router.get('/crop/:fieldId', protect, async (req, res) => {
     const { fieldId } = req.params;
     const userId = req.user.userId;
@@ -53,6 +62,7 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         );
 
         // 3. Prepare ML Input Data
+<<<<<<< HEAD
         // CRITICAL FIX: Ensure all values sent to Python are explicit numbers (floats)
         const mlInput = {
             N: toFloat(soilAndLocationData.nitrogen_ppm),
@@ -97,6 +107,34 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         // ----------------------------------------------------------------
 
         // 4. Record Recommendation in DB
+=======
+        // IMPORTANT: The ML model requires an NPK-pH-Temp-Humidity-Rainfall input array.
+        const mlInput = {
+            N: soilAndLocationData.nitrogen_ppm,
+            P: soilAndLocationData.phosphorus_ppm,
+            K: soilAndLocationData.potassium_ppm,
+            pH: soilAndLocationData.ph_level,
+            Temp: weatherData.temperature_c,
+            Humidity: weatherData.humidity_percent,
+            Rainfall: weatherData.rainfall_mm,
+        };
+        
+        // ----------------------------------------------------------------
+        // NOTE: This is the placeholder for the actual ML Model call
+        // ----------------------------------------------------------------
+        
+        // *** In a production system, this would be an HTTP call to your Python ML service:
+        // const mlResponse = await axios.post('http://ml-model-service/predict', { input: mlInput });
+        // const recommendedCrop = mlResponse.data.prediction;
+
+        // --- MOCK ML RECOMMENDATION for testing ---
+        const cropList = ['Wheat', 'Maize', 'Rice', 'Sugarcane', 'Lentil'];
+        const recommendedCrop = cropList[Math.floor(Math.random() * cropList.length)]; // Random crop selection
+        const confidenceScore = (0.75 + Math.random() * 0.25);
+        // ----------------------------------------------------------------
+
+        // 4. Record Recommendation in DB (Optional but good practice)
+>>>>>>> Manishv2
         const recQuery = `
             INSERT INTO Recommendations (field_id, rec_type, recommended_item, details)
             VALUES (?, ?, ?, ?)
@@ -105,12 +143,16 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
             fieldId, 
             'crop', 
             recommendedCrop, 
+<<<<<<< HEAD
             JSON.stringify({ 
                 type: 'crop', 
                 ml_input: mlInput, 
                 weather: weatherData, 
                 confidence: confidenceScore 
             })
+=======
+            JSON.stringify({ ml_input: mlInput, weather: weatherData, confidence: confidenceScore })
+>>>>>>> Manishv2
         ]);
 
 
@@ -128,12 +170,15 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+<<<<<<< HEAD
 
 
 // ... (The rest of recommendationRoutes.js remains unchanged)
 // ----------------------------------------------------------------
 // Route 2: POST /api/recommendation/nutrition (Existing)
 // ----------------------------------------------------------------
+=======
+>>>>>>> Manishv2
 router.post('/nutrition', protect, async (req, res) => {
     const userId = req.user.userId;
 
@@ -217,7 +262,10 @@ router.post('/nutrition', protect, async (req, res) => {
             'nutrition', 
             cropName, 
             JSON.stringify({ 
+<<<<<<< HEAD
                 type: 'nutrition',
+=======
+>>>>>>> Manishv2
                 deficiency: deficiency, 
                 required: requiredFertilizers,
                 current_soil: currentSoil,
@@ -239,6 +287,7 @@ router.post('/nutrition', protect, async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 
 // ----------------------------------------------------------------
 // Route 3: DELETE /api/recommendation/all (Existing)
@@ -321,4 +370,6 @@ router.delete('/field/:fieldId', protect, async (req, res) => {
 });
 
 
+=======
+>>>>>>> Manishv2
 export default router;

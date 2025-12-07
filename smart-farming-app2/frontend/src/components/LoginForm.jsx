@@ -43,7 +43,15 @@ const LoginForm = ({ onLoginSuccess }) => {
 
             if (response.ok) {
                 // SUCCESS: Store the JWT and user data
+<<<<<<< HEAD
                 localStorage.setItem('authToken', data.token);
+=======
+                
+                // 1. Store the JWT in Local Storage for persistent session
+                localStorage.setItem('authToken', data.token);
+                
+                // 2. Store other necessary user info
+>>>>>>> Manishv2
                 localStorage.setItem('user', JSON.stringify({
                     userId: data.userId,
                     username: data.username,
@@ -53,6 +61,10 @@ const LoginForm = ({ onLoginSuccess }) => {
                 setMessage(`Welcome back, ${data.username}!`);
                 setIsSuccess(true);
                 
+<<<<<<< HEAD
+=======
+                // Call the success handler passed from App.jsx to update the application state
+>>>>>>> Manishv2
                 if (onLoginSuccess) {
                     onLoginSuccess(data.token, data.username, data.role);
                 }
@@ -71,6 +83,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     };
 
     return (
+<<<<<<< HEAD
         <div style={{ 
             // IMPROVED STYLING FOR VISIBILITY
             padding: '30px', 
@@ -80,6 +93,10 @@ const LoginForm = ({ onLoginSuccess }) => {
             border: '2px solid #ccc'
         }}>
             <h2 style={{color: '#3498db', marginBottom: '20px'}}>Farmer Login</h2>
+=======
+        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
+            <h2>Farmer Login</h2>
+>>>>>>> Manishv2
             
             {/* Display Feedback Message */}
             {message && (
@@ -90,7 +107,11 @@ const LoginForm = ({ onLoginSuccess }) => {
 
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '15px' }}>
                 <div>
+<<<<<<< HEAD
                     <label htmlFor="email" style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>Email:</label>
+=======
+                    <label htmlFor="email">Email:</label>
+>>>>>>> Manishv2
                     <input
                         type="email"
                         id="email"
@@ -98,11 +119,19 @@ const LoginForm = ({ onLoginSuccess }) => {
                         value={formData.email}
                         onChange={handleChange}
                         required
+<<<<<<< HEAD
                         style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
                     />
                 </div>
                 <div>
                     <label htmlFor="password" style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>Password:</label>
+=======
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                    />
+                </div>
+                <div>
+                    <label htmlFor="password">Password:</label>
+>>>>>>> Manishv2
                     <input
                         type="password"
                         id="password"
@@ -110,14 +139,24 @@ const LoginForm = ({ onLoginSuccess }) => {
                         value={formData.password}
                         onChange={handleChange}
                         required
+<<<<<<< HEAD
                         style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
+=======
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+>>>>>>> Manishv2
                     />
                 </div>
                 <button 
                     type="submit" 
+<<<<<<< HEAD
                     style={{ padding: '12px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}
                 >
                     Login to Dashboard
+=======
+                    style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                    Login
+>>>>>>> Manishv2
                 </button>
             </form>
         </div>

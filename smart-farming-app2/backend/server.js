@@ -4,6 +4,7 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import farmRoutes from './routes/farmRoutes.js';
 import recommendationRoutes from './routes/recommendationRoutes.js';
+<<<<<<< HEAD
 const app = express();
 const port = 5000; // Use port 5000 for the backend API
 
@@ -11,6 +12,16 @@ const allowedOrigins = ['http://localhost:5173']; // CODE_MERGER
 
 const corsOptions = {
   orgin:(origin, callback) => {
+=======
+import skuRoutes from './routes/skuRoutes.js';
+const app = express();
+const port = 5000; // Use port 5000 for the backend API
+
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+>>>>>>> Manishv2
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -33,6 +44,10 @@ app.get('/', (req, res) => {
 app.use('/api', userRoutes);
 app.use('/api/farm', farmRoutes);
 app.use('/api/recommendation', recommendationRoutes);
+<<<<<<< HEAD
+=======
+app.use('/api/skus', skuRoutes);
+>>>>>>> Manishv2
 
 // Start the server
 app.listen(port, () => {

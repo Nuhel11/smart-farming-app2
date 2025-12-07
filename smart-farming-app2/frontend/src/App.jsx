@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from 'react'; 
+=======
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, useParams, useNavigate, useLocation } from 'react-router-dom';
+>>>>>>> Manishv2
 import RegistrationForm from './components/RegistrationForm';
 import LoginForm from './components/LoginForm';
 import FieldDataForm from './components/FieldDataForm'; 
@@ -6,6 +11,7 @@ import Layout from './components/Layout';
 import HomeContent from './components/HomeContent'; 
 import Chatbot from './components/Chatbot';
 import FieldMap from './components/FieldMap'; 
+<<<<<<< HEAD
 
 // --- Delete Confirmation Modal Component ---
 const DeleteConfirmationModal = ({ onConfirm, onCancel }) => {
@@ -68,6 +74,13 @@ const DeleteConfirmationModal = ({ onConfirm, onCancel }) => {
 
 // --- Field Item Component (Handles all field-specific actions) ---
 const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => { 
+=======
+import Products from './components/Products';
+import ProductDetail from './components/ProductDetail'; 
+
+// --- Field Item Component (Handles all field-specific actions) ---
+const FieldItem = ({ field, authToken }) => {
+>>>>>>> Manishv2
     // Crop Recommendation States
     const [cropRecommendation, setCropRecommendation] = useState(null);
     const [isCropRecLoading, setIsCropRecLoading] = useState(false);
@@ -148,6 +161,7 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
             setIsNutrRecLoading(false);
         }
     };
+<<<<<<< HEAD
     
     // --- 3a. Handle Deleting Latest Recommendation for this Field ---
     const handleDeleteFieldRec = async (type) => {
@@ -212,6 +226,8 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
             alert('Network error during field deletion.');
         }
     };
+=======
+>>>>>>> Manishv2
 
 
     return (
@@ -221,6 +237,7 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
             borderRadius: '5px', 
             backgroundColor: 'white',
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+<<<<<<< HEAD
             textAlign: 'left',
             position: 'relative' // Needed for absolute positioning of the delete button
         }}>
@@ -247,6 +264,11 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
 
 
             <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a', paddingRight: '20px' }}>{field.field_name}</h4>
+=======
+            textAlign: 'left'
+        }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a' }}>{field.field_name}</h4>
+>>>>>>> Manishv2
             <p style={{ margin: '5px 0', fontSize: '0.85em', color: '#555' }}>
                 <span style={{ fontWeight: 'bold' }}>Soil:</span> N:{field.nitrogen_ppm} / P:{field.phosphorus_ppm || '--'} / K:{field.potassium_ppm || '--'} (pH: {field.ph_level})
             </p>
@@ -294,6 +316,7 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
             {/* --- Recommendation Display --- */}
             {cropRecommendation && (
                 <div style={{ borderTop: '1px dashed #ccc', paddingTop: '10px' }}>
+<<<<<<< HEAD
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold', color: '#27ae60', margin: '0 0 5px 0' }}>
                             Crop Rec: {cropRecommendation.recommended_crop}
@@ -307,6 +330,11 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
                             &times;
                         </button>
                     </div>
+=======
+                    <p style={{ fontWeight: 'bold', color: '#27ae60', margin: '0 0 5px 0' }}>
+                        Crop Rec: {cropRecommendation.recommended_crop}
+                    </p>
+>>>>>>> Manishv2
                     <p style={{ fontSize: '0.8em', margin: 0, color: '#555' }}>
                         Input Temp: {cropRecommendation.input_data.Temp}°C | Confidence: {(cropRecommendation.confidence * 100).toFixed(0)}%
                     </p>
@@ -315,6 +343,7 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
 
             {nutritionRecommendation && (
                 <div style={{ borderTop: '1px dashed #ccc', paddingTop: '10px', marginTop: '10px' }}>
+<<<<<<< HEAD
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <p style={{ fontWeight: 'bold', color: '#f39c12', margin: '0 0 5px 0' }}>
                             Nutrient Rec:
@@ -328,6 +357,11 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
                             &times;
                         </button>
                     </div>
+=======
+                    <p style={{ fontWeight: 'bold', color: '#f39c12', margin: '0 0 5px 0' }}>
+                        Nutrient Rec:
+                    </p>
+>>>>>>> Manishv2
                     <p style={{ fontSize: '0.8em', margin: 0, whiteSpace: 'pre-wrap', color: '#555' }}>
                          {nutritionRecommendation.message}
                     </p>
@@ -340,12 +374,35 @@ const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => {
 
 // --- Dashboard Component (The Protected Main Area) ---
 const Dashboard = ({ user, onLogout }) => {
+<<<<<<< HEAD
+=======
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { skuId } = useParams();
+    const isProductDetail = !!skuId || location.pathname.includes('/products/');
+    const isProductsPage = location.pathname.includes('/products');
+>>>>>>> Manishv2
     const [fields, setFields] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [refreshTrigger, setRefreshTrigger] = useState(0); 
     const [showChatbot, setShowChatbot] = useState(false); 
+<<<<<<< HEAD
     const [deleteStatus, setDeleteStatus] = useState(null); 
 
+=======
+    const [activeTab, setActiveTab] = useState(isProductsPage || isProductDetail ? 'products' : 'dashboard');
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [currentAdIndex, setCurrentAdIndex] = useState(0);
+
+    // Update activeTab when location changes
+    useEffect(() => {
+        if (isProductsPage || isProductDetail) {
+            setActiveTab('products');
+        } else {
+            setActiveTab('dashboard');
+        }
+    }, [location.pathname, isProductsPage, isProductDetail]); 
+>>>>>>> Manishv2
 
     // Fetches the user's field list from the protected API endpoint
     const fetchFields = async () => {
@@ -375,6 +432,7 @@ const Dashboard = ({ user, onLogout }) => {
         }
     };
 
+<<<<<<< HEAD
     // Handler to trigger field list reload whenever a change occurs
     const triggerRefresh = () => {
         setRefreshTrigger(prev => prev + 1);
@@ -406,6 +464,107 @@ const Dashboard = ({ user, onLogout }) => {
                     {deleteStatus.message}
                 </p>
             )}
+=======
+    useEffect(() => {
+        fetchFields();
+        fetchFeaturedProducts();
+    }, [user, refreshTrigger]);
+
+    // Fetch featured products for advertisement
+    const fetchFeaturedProducts = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/skus?is_active=true');
+            if (response.ok) {
+                const data = await response.json();
+                // Limit to first 5 products for the carousel
+                const products = data.data || [];
+                setFeaturedProducts(products.slice(0, 5));
+            }
+        } catch (error) {
+            console.error("Failed to load featured products:", error);
+        }
+    };
+
+    // Auto-scroll through advertisement products
+    useEffect(() => {
+        if (featuredProducts.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentAdIndex((prevIndex) => (prevIndex + 1) % featuredProducts.length);
+        }, 5000); // Change ad every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [featuredProducts]);
+
+    // Handler to refresh the field list after a successful new data submission
+    const handleDataSubmit = () => {
+        setRefreshTrigger(prev => prev + 1); 
+    };
+
+    return (
+        <div style={{ margin: '0 auto', padding: '40px 20px', maxWidth: '1400px', minHeight: '500px', textAlign: 'center' }}>
+            <h2>Welcome, {user.username}! 🌿</h2>
+
+            {/* Navigation Tabs */}
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '10px',
+                marginBottom: '30px',
+                borderBottom: '2px solid #eee',
+                paddingBottom: '10px'
+            }}>
+                <button
+                    onClick={() => {
+                        setActiveTab('dashboard');
+                        navigate('/dashboard');
+                    }}
+                    style={{
+                        padding: '12px 24px',
+                        backgroundColor: activeTab === 'dashboard' ? '#4CAF50' : 'transparent',
+                        color: activeTab === 'dashboard' ? 'white' : '#4CAF50',
+                        border: '2px solid #4CAF50',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '1em',
+                        transition: 'all 0.3s'
+                    }}
+                >
+                    Dashboard
+                </button>
+                <button
+                    onClick={() => {
+                        setActiveTab('products');
+                        navigate('/products');
+                    }}
+                    style={{
+                        padding: '12px 24px',
+                        backgroundColor: activeTab === 'products' ? '#4CAF50' : 'transparent',
+                        color: activeTab === 'products' ? 'white' : '#4CAF50',
+                        border: '2px solid #4CAF50',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '1em',
+                        transition: 'all 0.3s'
+                    }}
+                >
+                    Products
+                </button>
+            </div>
+
+            {/* Tab Content */}
+            <Routes>
+                <Route path="products/:skuId" element={<ProductDetail />} />
+                <Route path="products" element={<Products />} />
+                <Route path="*" element={
+                <>
+                    <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
+                        {/* Main Content Area */}
+                        <div style={{ flex: '1', minWidth: 0 }}>
+            <p>Ready to manage your fields and get crop and nutrient recommendations.</p>
+>>>>>>> Manishv2
 
             {/* --- Chatbot Toggle --- */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '10px 0', borderBottom: '1px solid #ddd' }}>
@@ -445,6 +604,7 @@ const Dashboard = ({ user, onLogout }) => {
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', padding: '10px' }}>
                         {fields.map(field => (
+<<<<<<< HEAD
                             <FieldItem 
                                 key={field.field_id} 
                                 field={field} 
@@ -452,10 +612,14 @@ const Dashboard = ({ user, onLogout }) => {
                                 onRecDelete={triggerRefresh} // For clearing single rec history
                                 onDeleteField={triggerRefresh} // For deleting the entire card/field
                             />
+=======
+                            <FieldItem key={field.field_id} field={field} authToken={localStorage.getItem('authToken')} />
+>>>>>>> Manishv2
                         ))}
                     </div>
                 )}
             </div>
+<<<<<<< HEAD
             
             {/* --- Logout Button (Only Logout remains) --- */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '30px' }}>
@@ -467,6 +631,253 @@ const Dashboard = ({ user, onLogout }) => {
                 >
                     Logout
                 </button>
+=======
+                        </div>
+
+                        {/* Product Advertisement Sidebar */}
+                        {featuredProducts.length > 0 && (
+                            <div style={{
+                                width: '320px',
+                                flexShrink: 0,
+                                position: 'sticky',
+                                top: '20px'
+                            }}>
+                                <div style={{
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                    backgroundColor: 'white',
+                                    position: 'relative'
+                                }}>
+                                    {/* Sidebar Header */}
+                                    <div style={{
+                                        backgroundColor: '#4CAF50',
+                                        color: 'white',
+                                        padding: '15px 20px',
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        fontSize: '1.1em'
+                                    }}>
+                                        Featured Products
+                                    </div>
+
+                                    {/* Product Carousel */}
+                                    <div style={{
+                                        overflow: 'hidden',
+                                        position: 'relative',
+                                        height: '500px'
+                                    }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            height: `${featuredProducts.length * 100}%`,
+                                            transform: `translateY(-${currentAdIndex * (100 / featuredProducts.length)}%)`,
+                                            transition: 'transform 0.6s ease-in-out'
+                                        }}>
+                                            {featuredProducts.map((product, index) => (
+                                                <div
+                                                    key={product.sku_id}
+                                                    onClick={() => navigate(`/products/${product.sku_id}`)}
+                                                    style={{
+                                                        height: `${100 / featuredProducts.length}%`,
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        padding: '20px',
+                                                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
+                                                        cursor: 'pointer',
+                                                        borderBottom: index < featuredProducts.length - 1 ? '1px solid #eee' : 'none',
+                                                        transition: 'background-color 0.3s'
+                                                    }}
+                                                    onMouseEnter={() => setCurrentAdIndex(index)}
+                                                    onMouseOver={(e) => {
+                                                        e.currentTarget.style.backgroundColor = '#f0f9ff';
+                                                    }}
+                                                    onMouseOut={(e) => {
+                                                        e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9f9f9';
+                                                    }}
+                                                >
+                                                    {/* Product Image */}
+                                                    <div style={{
+                                                        width: '100%',
+                                                        height: '180px',
+                                                        borderRadius: '8px',
+                                                        overflow: 'hidden',
+                                                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                                                        backgroundColor: '#f5f5f5',
+                                                        marginBottom: '15px'
+                                                    }}>
+                                                        {product.images && product.images.length > 0 ? (
+                                                            <img
+                                                                src={product.images[0]}
+                                                                alt={product.title}
+                                                                style={{
+                                                                    width: '100%',
+                                                                    height: '100%',
+                                                                    objectFit: 'cover'
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.src = 'https://via.placeholder.com/280x180?text=No+Image';
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                color: '#999'
+                                                            }}>
+                                                                No Image
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Category Badge */}
+                                                    <div style={{
+                                                        display: 'inline-block',
+                                                        backgroundColor: '#4CAF50',
+                                                        color: 'white',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.75em',
+                                                        fontWeight: 'bold',
+                                                        marginBottom: '10px',
+                                                        alignSelf: 'flex-start'
+                                                    }}>
+                                                        {product.category ? product.category.toUpperCase() : 'FEATURED'}
+                                                    </div>
+
+                                                    {/* Product Title */}
+                                                    <h4 style={{
+                                                        margin: '0 0 8px 0',
+                                                        fontSize: '1.1em',
+                                                        fontWeight: 'bold',
+                                                        color: '#1a1a1a',
+                                                        lineHeight: '1.3',
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 2,
+                                                        WebkitBoxOrient: 'vertical',
+                                                        overflow: 'hidden'
+                                                    }}>
+                                                        {product.title}
+                                                    </h4>
+
+                                                    {/* Short Description */}
+                                                    {product.short_description && (
+                                                        <p style={{
+                                                            margin: '0 0 12px 0',
+                                                            fontSize: '0.85em',
+                                                            color: '#666',
+                                                            lineHeight: '1.5',
+                                                            display: '-webkit-box',
+                                                            WebkitLineClamp: 2,
+                                                            WebkitBoxOrient: 'vertical',
+                                                            overflow: 'hidden'
+                                                        }}>
+                                                            {product.short_description}
+                                                        </p>
+                                                    )}
+
+                                                    {/* Price */}
+                                                    <div style={{
+                                                        fontSize: '1.5em',
+                                                        fontWeight: 'bold',
+                                                        color: '#4CAF50',
+                                                        marginBottom: '8px'
+                                                    }}>
+                                                        ${parseFloat(product.price_usd).toFixed(2)}
+                                                    </div>
+
+                                                    {/* Stock Status */}
+                                                    <div style={{
+                                                        fontSize: '0.8em',
+                                                        color: product.stock_quantity > 0 ? '#4CAF50' : '#f39c12',
+                                                        marginBottom: '12px',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {product.stock_quantity > 0 ? '✓ In Stock' : '⚠ Check Availability'}
+                                                    </div>
+
+                                                    {/* View Details Button */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/products/${product.sku_id}`);
+                                                        }}
+                                                        style={{
+                                                            width: '100%',
+                                                            padding: '10px',
+                                                            backgroundColor: '#4CAF50',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            borderRadius: '6px',
+                                                            fontSize: '0.9em',
+                                                            fontWeight: 'bold',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.3s'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                            e.currentTarget.style.backgroundColor = '#45a049';
+                                                            e.currentTarget.style.transform = 'translateY(-2px)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            e.currentTarget.style.backgroundColor = '#4CAF50';
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                        }}
+                                                    >
+                                                        View Details →
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Sidebar Indicators */}
+                                    {featuredProducts.length > 1 && (
+                                        <div style={{
+                                            padding: '12px',
+                                            backgroundColor: '#f9f9f9',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            borderTop: '1px solid #eee'
+                                        }}>
+                                            {featuredProducts.map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setCurrentAdIndex(index)}
+                                                    style={{
+                                                        width: index === currentAdIndex ? '24px' : '8px',
+                                                        height: '8px',
+                                                        borderRadius: '4px',
+                                                        border: 'none',
+                                                        backgroundColor: index === currentAdIndex ? '#4CAF50' : '#ddd',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.3s',
+                                                        padding: 0
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </>
+                } />
+            </Routes>
+
+            {/* Logout Button */}
+            <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <button 
+                onClick={onLogout}
+                    style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+                Logout
+            </button>
+>>>>>>> Manishv2
             </div>
         </div>
     );
@@ -514,6 +925,7 @@ function App() {
         setIsRegistering(false); 
     };
     
+<<<<<<< HEAD
     // Define the background image URL for the forms section
     const formBgImageUrl = 'https://c.pxhere.com/photos/92/b9/countryside_crop_cropland_farm_farmland_field_grass_nature-1367050.jpg!d';
     
@@ -526,16 +938,32 @@ function App() {
         <div className="App" style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f7f7f7' }}>
             {isAuthenticated ? (
                 <Layout isAuth={true}>
+=======
+    // Main render logic switches between the Layout (unauthenticated) and the Dashboard (authenticated)
+    return (
+        <Router>
+        <div className="App" style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f7f7f7' }}>
+            {isAuthenticated ? (
+                <Layout isAuth={true}>
+                        <Routes>
+                            <Route path="*" element={
+>>>>>>> Manishv2
                     <Dashboard 
                         user={user} 
                         onLogout={handleLogout} 
                     />
+<<<<<<< HEAD
+=======
+                            } />
+                        </Routes>
+>>>>>>> Manishv2
                 </Layout>
             ) : (
                 // Pass the scroll handler to the Layout component
                 <Layout isAuth={false} onNavClick={handleScrollToForms}> 
                     <HomeContent /> 
                     {/* Attach the ref to the form container */}
+<<<<<<< HEAD
                     {/* UPDATED STYLING FOR FORM CONTAINER WITH IMAGE AND GRADIENT */}
                     <div 
                         ref={formContainerRef} 
@@ -556,6 +984,10 @@ function App() {
                     >
                         {/* *** FIXED: Reducing maxWidth for smaller form area *** */}
                         <div style={{ width: '100%', maxWidth: '400px', marginBottom: '20px' }}>
+=======
+                    <div ref={formContainerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', backgroundColor: '#f0f0f0' }}>
+                        <div style={{ width: '100%', maxWidth: '450px', marginBottom: '20px' }}>
+>>>>>>> Manishv2
                             {isRegistering ? (
                                 <RegistrationForm />
                             ) : (
@@ -575,6 +1007,10 @@ function App() {
                 </Layout>
             )}
         </div>
+<<<<<<< HEAD
+=======
+        </Router>
+>>>>>>> Manishv2
     );
 }
 

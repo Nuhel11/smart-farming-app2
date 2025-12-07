@@ -6,6 +6,10 @@ const router = express.Router();
 
 // ----------------------------------------------------------------
 // Helper function to sanitize inputs (convert empty strings to null for DB)
+<<<<<<< HEAD
+=======
+// This is critical to prevent "Out of range" errors when inserting empty strings into DECIMAL columns.
+>>>>>>> Manishv2
 // ----------------------------------------------------------------
 const sanitizeInput = (value) => {
     // Check for null, undefined, or empty string.
@@ -19,7 +23,12 @@ const sanitizeInput = (value) => {
 
 
 // ----------------------------------------------------------------
+<<<<<<< HEAD
 // Route 1: POST /api/farm/field (Existing)
+=======
+// Route 1: POST /api/farm/field
+// Purpose: Register a new field and its initial soil data (PROTECTED)
+>>>>>>> Manishv2
 // ----------------------------------------------------------------
 router.post('/field', protect, async (req, res) => {
     const userId = req.user.userId;
@@ -83,13 +92,22 @@ router.post('/field', protect, async (req, res) => {
 
 
 // ----------------------------------------------------------------
+<<<<<<< HEAD
 // Route 2: GET /api/farm/fields (Existing)
+=======
+// Route 2: GET /api/farm/fields
+// Purpose: Fetch all fields and their latest soil data for the current user (PROTECTED)
+>>>>>>> Manishv2
 // ----------------------------------------------------------------
 router.get('/fields', protect, async (req, res) => {
     const userId = req.user.userId;
 
     try {
         // Query to get all fields for the user, and the latest soil test results for each.
+<<<<<<< HEAD
+=======
+        // We join Fields (f) with Soil_Data (s) and use a subquery to filter only the LATEST soil entry (most recent test_date)
+>>>>>>> Manishv2
         const query = `
             SELECT 
                 f.field_id, 
@@ -121,6 +139,7 @@ router.get('/fields', protect, async (req, res) => {
 });
 
 
+<<<<<<< HEAD
 // ----------------------------------------------------------------
 // NEW ROUTE 3: DELETE /api/farm/:fieldId
 // Purpose: Delete an entire field and all associated soil/recommendation data (PROTECTED)
@@ -156,4 +175,6 @@ router.delete('/:fieldId', protect, async (req, res) => {
 });
 
 
+=======
+>>>>>>> Manishv2
 export default router;

@@ -2,6 +2,7 @@ import React from 'react';
 
 const FeatureCard = ({ title, description, icon }) => (
     <div style={{
+<<<<<<< HEAD
         // Card styling adjusted for contrast against the new background
         backgroundColor: 'white',
         padding: '30px',
@@ -19,10 +20,23 @@ const FeatureCard = ({ title, description, icon }) => (
         <div style={{ fontSize: '3em', color: '#4CAF50', marginBottom: '10px' }}>{icon}</div>
         <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a', fontSize: '1.2em' }}>{title}</h4>
         <p style={{ fontSize: '0.9em', color: '#555' }}>{description}</p>
+=======
+        backgroundColor: 'white',
+        padding: '25px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        textAlign: 'center',
+        borderLeft: '5px solid #4CAF50'
+    }}>
+        <div style={{ fontSize: '2.5em', color: '#4CAF50', marginBottom: '10px' }}>{icon}</div>
+        <h4 style={{ margin: '0 0 10px 0', color: '#1a1a1a' }}>{title}</h4>
+        <p style={{ fontSize: '0.9em', color: '#666' }}>{description}</p>
+>>>>>>> Manishv2
     </div>
 );
 
 const HomeContent = () => {
+<<<<<<< HEAD
     
     // Background Image URL (Same as used in the login section for consistency)
     const formBgImageUrl = 'https://c.pxhere.com/photos/92/b9/countryside_crop_cropland_farm_farmland_field_grass_nature-1367050.jpg!d';
@@ -34,6 +48,8 @@ const HomeContent = () => {
     const featuresGradientOverlay = 'linear-gradient(rgba(100, 150, 100, 0.2), rgba(100, 150, 100, 0.4))';
 
 
+=======
+>>>>>>> Manishv2
     return (
         <div style={{
             maxWidth: '1200px',
@@ -41,6 +57,7 @@ const HomeContent = () => {
             padding: '40px 20px',
             fontFamily: 'Arial, sans-serif'
         }}>
+<<<<<<< HEAD
             {/* Hero Section - Uses Dark Green Gradient */}
             <header style={{
                 textAlign: 'center',
@@ -88,6 +105,28 @@ const HomeContent = () => {
                     color: 'white', // Ensure heading stands out
                     textShadow: '0 0 5px rgba(0, 0, 0, 0.5)'
                 }}>
+=======
+            {/* Hero Section */}
+            <header style={{
+                textAlign: 'center',
+                padding: '60px 20px',
+                backgroundColor: '#e8f5e9', // Light green background
+                borderRadius: '12px',
+                marginBottom: '40px',
+                border: '1px solid #4CAF50'
+            }}>
+                <h1 style={{ fontSize: '3em', color: '#1a1a1a', margin: '0 0 10px 0' }}>
+                    Data-Driven Decisions for a Better Harvest
+                </h1>
+                <p style={{ fontSize: '1.2em', color: '#4CAF50' }}>
+                    Get precise crop, weather, and nutrient recommendations tailored to your field.
+                </p>
+            </header>
+
+            {/* Features Section */}
+            <section style={{ marginBottom: '40px' }}>
+                <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>
+>>>>>>> Manishv2
                     How SmartFarm AI Empowers You
                 </h2>
                 <div style={{

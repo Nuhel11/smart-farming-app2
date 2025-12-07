@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+<<<<<<< HEAD
 // Define common styles for reusability
 const inputStyle = {
     width: '100%',
@@ -18,6 +19,8 @@ const labelStyle = {
     color: '#333'
 };
 
+=======
+>>>>>>> Manishv2
 const FieldDataForm = ({ onDataSubmit }) => {
     const [formData, setFormData] = useState({
         field_name: '', latitude: '', longitude: '', area_sq_m: '',
@@ -35,6 +38,10 @@ const FieldDataForm = ({ onDataSubmit }) => {
         setMessage('Submitting data...');
         setIsSuccess(false);
 
+<<<<<<< HEAD
+=======
+        // Retrieve JWT from local storage
+>>>>>>> Manishv2
         const authToken = localStorage.getItem('authToken');
         
         if (!authToken) {
@@ -47,7 +54,11 @@ const FieldDataForm = ({ onDataSubmit }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+<<<<<<< HEAD
                     'Authorization': `Bearer ${authToken}`
+=======
+                    'Authorization': `Bearer ${authToken}` // Attach JWT for protection
+>>>>>>> Manishv2
                 },
                 body: JSON.stringify(formData),
             });
@@ -57,8 +68,13 @@ const FieldDataForm = ({ onDataSubmit }) => {
             if (response.ok) {
                 setMessage(`Success! ${data.message} Field ID: ${data.fieldId}`);
                 setIsSuccess(true);
+<<<<<<< HEAD
                 // Optionally clear the form:
                 // setFormData({ field_name: '', latitude: '', longitude: '', area_sq_m: '', nitrogen_ppm: '', phosphorus_ppm: '', potassium_ppm: '', ph_level: '' });
+=======
+                // Reset form data and call the parent handler
+                setFormData({ field_name: '', latitude: '', longitude: '', area_sq_m: '', nitrogen_ppm: '', phosphorus_ppm: '', potassium_ppm: '', ph_level: '' });
+>>>>>>> Manishv2
                 if (onDataSubmit) onDataSubmit(); 
 
             } else if (response.status === 401) {
@@ -73,6 +89,7 @@ const FieldDataForm = ({ onDataSubmit }) => {
     };
 
     return (
+<<<<<<< HEAD
         <div style={{ 
             padding: '30px', 
             border: '1px solid #e0e0e0', 
@@ -177,6 +194,144 @@ const FieldDataForm = ({ onDataSubmit }) => {
                         Submit Field Data & Get Recommendations
                     </button>
                 </div>
+=======
+        <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', margin: '20px 0' }}>
+            <h3>Record New Field & Soil Data</h3>
+            
+            {message && (
+                <p style={{ color: isSuccess ? 'green' : 'red', fontWeight: 'bold' }}>{message}</p>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+                {/* --- Field Location Data --- */}
+                <fieldset style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '6px' }}>
+                    <legend style={{ padding: '0 10px', fontWeight: 'bold' }}>Field Details</legend>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Name:</label>
+                        <input 
+                            type="text" 
+                            name="field_name" 
+                            value={formData.field_name} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Latitude:</label>
+                        <input 
+                            type="number" 
+                            step="0.000001" 
+                            name="latitude" 
+                            value={formData.latitude} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Longitude:</label>
+                        <input 
+                            type="number" 
+                            step="0.000001" 
+                            name="longitude" 
+                            value={formData.longitude} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '0' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Area (sq. m):</label>
+                        <input 
+                            type="number" 
+                            name="area_sq_m" 
+                            value={formData.area_sq_m} 
+                            onChange={handleChange} 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                </fieldset>
+
+                {/* --- Soil Data --- */}
+                <fieldset style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '6px' }}>
+                    <legend style={{ padding: '0 10px', fontWeight: 'bold' }}>Soil Test Results (ppm / pH)</legend>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Nitrogen (N):</label>
+                        <input 
+                            type="number" 
+                            name="nitrogen_ppm" 
+                            value={formData.nitrogen_ppm} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Phosphorus (P):</label>
+                        <input 
+                            type="number" 
+                            name="phosphorus_ppm" 
+                            value={formData.phosphorus_ppm} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Potassium (K):</label>
+                        <input 
+                            type="number" 
+                            name="potassium_ppm" 
+                            value={formData.potassium_ppm} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                    
+                    <div style={{ marginBottom: '0' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>pH Level:</label>
+                        <input 
+                            type="number" 
+                            step="0.1" 
+                            name="ph_level" 
+                            value={formData.ph_level} 
+                            onChange={handleChange} 
+                            required 
+                            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+                        />
+                    </div>
+                </fieldset>
+                
+                <button 
+                    type="submit" 
+                    style={{ 
+                        padding: '12px 20px', 
+                        backgroundColor: '#4CAF50', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer', 
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        gridColumn: '1 / -1',
+                        marginTop: '10px',
+                        transition: 'background-color 0.3s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                >
+                    Submit Field Data
+                </button>
+>>>>>>> Manishv2
             </form>
         </div>
     );

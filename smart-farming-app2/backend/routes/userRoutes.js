@@ -102,13 +102,32 @@ router.post('/login', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 //Route: GET /api/users
 //Purpose: Get all users
 router.get('/profile', (req, res) => {
+=======
+//Route: GET /api/profile
+//Purpose: Get user profile (PROTECTED)
+router.get('/profile', protect, (req, res) => {
+>>>>>>> Manishv2
     res.json({
         message: 'Welcome to your protected profile!',
         data: req.user
     });
 });
 
+<<<<<<< HEAD
+=======
+router.get('/users', async (req, res) => {
+    try {
+        const [rows] = await pool.execute('SELECT * FROM Users');
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Server error fetching users.' });
+    }
+});
+
+>>>>>>> Manishv2
 export default router;
