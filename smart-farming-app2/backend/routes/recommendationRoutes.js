@@ -2,12 +2,28 @@ import express from 'express';
 import pool from '../db.js';
 import protect from '../middleware/auth.js';
 import { getCurrentWeather } from '../services/weatherService.js';
-// Removed unused import: import { calculateNutrientDeficiency } from '../utils/nutrientLogic.js';
+import axios from 'axios'; // NEW IMPORT for making HTTP calls to the ML server
+
+// Define the URL for your external Python ML microservice (running on port 8080)
+const ML_SERVICE_URL = 'http://localhost:8080/predict'; 
 
 const router = express.Router();
 
+// Helper function to safely convert values to Float, since MySQL output can be stringified.
+const toFloat = (value) => {
+    // Ensure the value exists before trying to parse it
+    if (value === null || value === undefined) return null; 
+    
+    // Attempt to parse the value to a float
+    const num = parseFloat(value);
+    
+    // If conversion results in NaN, return null or handle as error. Since these are required ML inputs, we'll return the number or null.
+    return isNaN(num) ? null : num;
+};
+
 // ----------------------------------------------------------------
-// Route 1: GET /api/recommendation/crop/:fieldId (Existing)
+// Route 1: GET /api/recommendation/crop/:fieldId
+// Purpose: Provide a crop recommendation based on current conditions (PROTECTED)
 // ----------------------------------------------------------------
 router.get('/crop/:fieldId', protect, async (req, res) => {
     const { fieldId } = req.params;
@@ -37,20 +53,47 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
         );
 
         // 3. Prepare ML Input Data
+        // CRITICAL FIX: Ensure all values sent to Python are explicit numbers (floats)
         const mlInput = {
-            N: soilAndLocationData.nitrogen_ppm,
-            P: soilAndLocationData.phosphorus_ppm,
-            K: soilAndLocationData.potassium_ppm,
-            pH: soilAndLocationData.ph_level,
-            Temp: weatherData.temperature_c,
-            Humidity: weatherData.humidity_percent,
-            Rainfall: weatherData.rainfall_mm,
+            N: toFloat(soilAndLocationData.nitrogen_ppm),
+            P: toFloat(soilAndLocationData.phosphorus_ppm),
+            K: toFloat(soilAndLocationData.potassium_ppm),
+            pH: toFloat(soilAndLocationData.ph_level),
+            Temp: toFloat(weatherData.temperature_c),
+            Humidity: toFloat(weatherData.humidity_percent),
+            Rainfall: toFloat(weatherData.rainfall_mm),
         };
+
+        // Input validation before sending to ML service
+        if (Object.values(mlInput).some(v => v === null)) {
+             console.error('ML Input Missing or Invalid Data:', mlInput);
+             return res.status(400).json({ message: "Invalid or missing numerical data required for ML prediction." });
+        }
         
-        // --- MOCK ML RECOMMENDATION for testing ---
-        const cropList = ['Wheat', 'Maize', 'Rice', 'Sugarcane', 'Lentil'];
-        const recommendedCrop = cropList[Math.floor(Math.random() * cropList.length)]; // Random crop selection
-        const confidenceScore = (0.75 + Math.random() * 0.25); 
+        // ----------------------------------------------------------------
+        // REAL ML MODEL CALL INTEGRATION
+        // ----------------------------------------------------------------
+        
+        let recommendedCrop;
+        let confidenceScore;
+
+        try {
+            // Send the combined data (Soil + Weather) to the external Python ML service
+            const mlResponse = await axios.post(ML_SERVICE_URL, mlInput);
+            
+            recommendedCrop = mlResponse.data.recommended_crop;
+            confidenceScore = mlResponse.data.confidence || 0.8; // Use 0.8 if confidence is not provided
+            
+            console.log(`ML Prediction received: ${recommendedCrop} (Confidence: ${confidenceScore})`);
+
+        } catch (mlError) {
+            console.error('External ML Service Error:', mlError.message);
+            
+            // Fallback if the ML service is down or fails to respond
+            recommendedCrop = "Fallback Crop (ML Service Down)";
+            confidenceScore = 0.5;
+        }
+
         // ----------------------------------------------------------------
 
         // 4. Record Recommendation in DB
@@ -77,7 +120,7 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
             recommended_crop: recommendedCrop,
             confidence: confidenceScore,
             input_data: mlInput,
-            source: 'Mock ML Model & Live Weather'
+            source: 'ML Model & Live Weather'
         });
 
     } catch (error) {
@@ -87,6 +130,7 @@ router.get('/crop/:fieldId', protect, async (req, res) => {
 });
 
 
+// ... (The rest of recommendationRoutes.js remains unchanged)
 // ----------------------------------------------------------------
 // Route 2: POST /api/recommendation/nutrition (Existing)
 // ----------------------------------------------------------------
@@ -233,8 +277,7 @@ router.delete('/all', protect, async (req, res) => {
 });
 
 // ----------------------------------------------------------------
-// NEW ROUTE 4: DELETE /api/recommendation/field/:fieldId
-// Purpose: Delete the MOST RECENT recommendation (crop OR nutrition) for a specific field (PROTECTED)
+// NEW ROUTE 4: DELETE /api/recommendation/field/:fieldId (Existing)
 // ----------------------------------------------------------------
 router.delete('/field/:fieldId', protect, async (req, res) => {
     const { fieldId } = req.params;
@@ -276,5 +319,6 @@ router.delete('/field/:fieldId', protect, async (req, res) => {
         res.status(500).json({ message: 'Server error during specific history deletion.' });
     }
 });
+
 
 export default router;

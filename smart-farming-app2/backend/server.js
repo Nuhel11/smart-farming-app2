@@ -10,7 +10,7 @@ const port = 5000; // Use port 5000 for the backend API
 const allowedOrigins = ['http://localhost:5173']; // CODE_MERGER
 
 const corsOptions = {
-  orgin:(orgin, callback) => {
+  orgin:(origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

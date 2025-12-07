@@ -7,12 +7,66 @@ import HomeContent from './components/HomeContent';
 import Chatbot from './components/Chatbot';
 import FieldMap from './components/FieldMap'; 
 
-// --- Delete Confirmation Modal Component (REMOVED) ---
-// This component is no longer needed as the global deletion button is removed.
+// --- Delete Confirmation Modal Component ---
+const DeleteConfirmationModal = ({ onConfirm, onCancel }) => {
+    const modalStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000
+    };
+    const contentStyle = {
+        backgroundColor: 'white',
+        padding: '30px',
+        borderRadius: '8px',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)',
+        maxWidth: '400px',
+        textAlign: 'center'
+    };
+    const buttonStyle = (color) => ({
+        padding: '10px 20px',
+        margin: '0 10px',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        backgroundColor: color,
+        color: 'white',
+        transition: 'background-color 0.2s'
+    });
+
+    return (
+        <div style={modalStyle}>
+            <div style={contentStyle}>
+                <h4 style={{ color: '#c0392b', marginBottom: '15px' }}>Confirm Deletion</h4>
+                <p>Are you sure you want to delete **ALL** of your past crop and nutrient recommendation history? This action cannot be undone.</p>
+                <div style={{ marginTop: '20px' }}>
+                    <button 
+                        onClick={onCancel} 
+                        style={buttonStyle('#95a5a6')}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={onConfirm} 
+                        style={buttonStyle('#c0392b')}
+                    >
+                        Yes, Delete History
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 
 // --- Field Item Component (Handles all field-specific actions) ---
-// FieldItem remains the same as it handles the per-field deletion
 const FieldItem = ({ field, authToken, onRecDelete, onDeleteField }) => { 
     // Crop Recommendation States
     const [cropRecommendation, setCropRecommendation] = useState(null);
@@ -290,7 +344,7 @@ const Dashboard = ({ user, onLogout }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [refreshTrigger, setRefreshTrigger] = useState(0); 
     const [showChatbot, setShowChatbot] = useState(false); 
-    // Removed unused states: showDeleteConfirm, deleteStatus, handleDeleteHistory
+    const [deleteStatus, setDeleteStatus] = useState(null); 
 
 
     // Fetches the user's field list from the protected API endpoint
@@ -338,8 +392,21 @@ const Dashboard = ({ user, onLogout }) => {
 
     return (
         <div style={{ margin: '0 auto', padding: '40px 20px', maxWidth: '1000px', minHeight: '500px', textAlign: 'center' }}>
-            {/* Status Message (Removed global delete status) */}
             
+            {/* --- Status Message (Delete History) --- */}
+            {deleteStatus && (
+                <p style={{
+                    color: deleteStatus.type === 'success' ? '#27ae60' : '#c0392b',
+                    backgroundColor: deleteStatus.type === 'success' ? '#e9f7ef' : '#fbe7e6',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    fontWeight: 'bold',
+                    marginBottom: '15px'
+                }}>
+                    {deleteStatus.message}
+                </p>
+            )}
+
             {/* --- Chatbot Toggle --- */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '10px 0', borderBottom: '1px solid #ddd' }}>
                  <p style={{margin: 0, fontSize: '1.1em', fontWeight: 'bold'}}>Field Management</p>
@@ -392,7 +459,7 @@ const Dashboard = ({ user, onLogout }) => {
             
             {/* --- Logout Button (Only Logout remains) --- */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '30px' }}>
-                {/* Global Delete Button and Modal REMOVED */}
+                {/* Global Delete Button REMOVED */}
 
                 <button 
                     onClick={onLogout}
@@ -447,6 +514,13 @@ function App() {
         setIsRegistering(false); 
     };
     
+    // Define the background image URL for the forms section
+    const formBgImageUrl = 'https://c.pxhere.com/photos/92/b9/countryside_crop_cropland_farm_farmland_field_grass_nature-1367050.jpg!d';
+    
+    // Define the gradient overlay for readability
+    // **FIXED:** Decreasing opacity for visibility: 0.95 -> 0.85, 0.8 -> 0.7
+    const gradientOverlay = 'linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.7))';
+
     // Main render logic switches between the Layout (unauthenticated) and the Dashboard (authenticated)
     return (
         <div className="App" style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f7f7f7' }}>
@@ -462,8 +536,26 @@ function App() {
                 <Layout isAuth={false} onNavClick={handleScrollToForms}> 
                     <HomeContent /> 
                     {/* Attach the ref to the form container */}
-                    <div ref={formContainerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', backgroundColor: '#f0f0f0' }}>
-                        <div style={{ width: '100%', maxWidth: '450px', marginBottom: '20px' }}>
+                    {/* UPDATED STYLING FOR FORM CONTAINER WITH IMAGE AND GRADIENT */}
+                    <div 
+                        ref={formContainerRef} 
+                        style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            padding: '40px 20px', 
+                            
+                            // *** NEW BACKGROUND STYLING ***
+                            backgroundImage: `${gradientOverlay}, url(${formBgImageUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            
+                            borderTop: '5px solid #2ecc71',
+                            boxShadow: '0 -4px 10px rgba(0, 0, 0, 0.1)' 
+                        }}
+                    >
+                        {/* *** FIXED: Reducing maxWidth for smaller form area *** */}
+                        <div style={{ width: '100%', maxWidth: '400px', marginBottom: '20px' }}>
                             {isRegistering ? (
                                 <RegistrationForm />
                             ) : (

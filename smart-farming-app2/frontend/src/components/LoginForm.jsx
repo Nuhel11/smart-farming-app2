@@ -43,11 +43,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 
             if (response.ok) {
                 // SUCCESS: Store the JWT and user data
-                
-                // 1. Store the JWT in Local Storage for persistent session
                 localStorage.setItem('authToken', data.token);
-                
-                // 2. Store other necessary user info
                 localStorage.setItem('user', JSON.stringify({
                     userId: data.userId,
                     username: data.username,
@@ -57,7 +53,6 @@ const LoginForm = ({ onLoginSuccess }) => {
                 setMessage(`Welcome back, ${data.username}!`);
                 setIsSuccess(true);
                 
-                // Call the success handler passed from App.jsx to update the application state
                 if (onLoginSuccess) {
                     onLoginSuccess(data.token, data.username, data.role);
                 }
@@ -76,8 +71,15 @@ const LoginForm = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h2>Farmer Login</h2>
+        <div style={{ 
+            // IMPROVED STYLING FOR VISIBILITY
+            padding: '30px', 
+            backgroundColor: 'white', // Ensure high contrast
+            borderRadius: '10px', 
+            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+            border: '2px solid #ccc'
+        }}>
+            <h2 style={{color: '#3498db', marginBottom: '20px'}}>Farmer Login</h2>
             
             {/* Display Feedback Message */}
             {message && (
@@ -88,7 +90,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '15px' }}>
                 <div>
-                    <label htmlFor="email">Email:</label>
+                    <label htmlFor="email" style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>Email:</label>
                     <input
                         type="email"
                         id="email"
@@ -96,11 +98,11 @@ const LoginForm = ({ onLoginSuccess }) => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
                     />
                 </div>
                 <div>
-                    <label htmlFor="password">Password:</label>
+                    <label htmlFor="password" style={{display: 'block', marginBottom: '5px', fontWeight: 'bold'}}>Password:</label>
                     <input
                         type="password"
                         id="password"
@@ -108,14 +110,14 @@ const LoginForm = ({ onLoginSuccess }) => {
                         value={formData.password}
                         onChange={handleChange}
                         required
-                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
                     />
                 </div>
                 <button 
                     type="submit" 
-                    style={{ padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    style={{ padding: '12px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}
                 >
-                    Login
+                    Login to Dashboard
                 </button>
             </form>
         </div>
