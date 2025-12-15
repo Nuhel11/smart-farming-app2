@@ -33,5 +33,3 @@ joblib.dump(model, 'crop_prediction_model.pkl')
 
 print("Successfully trained and saved model as crop_prediction_model.pkl")
 
-# --- You must also run: pip install scikit-learn pandas ---
-# --- BEFORE running this script ---
